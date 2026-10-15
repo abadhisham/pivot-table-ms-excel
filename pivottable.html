@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Belajar Pivot Table 1D dan 2D: Toko Nusantara Mart</title>
+<style>
+:root{--bg:#f6f8f6;--card:#fff;--ink:#1c2b22;--mute:#5b6b61;--line:#cfd8d2;--g:#1d6f42;--gl:#e3f2e9;--hl:#fff0a8;--err:#b3261e;--errl:#fdeceb}
+@media(prefers-color-scheme:dark){:root{--bg:#121a15;--card:#1a251e;--ink:#e6efe9;--mute:#9db0a4;--line:#34473b;--g:#5cc08a;--gl:#1f3a2a;--hl:#5a4d10;--err:#ff8a80;--errl:#3b1f1d}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,"Segoe UI",sans-serif}
+main{max-width:860px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:1.7rem;margin:.2em 0}h2{font-size:1.25rem;margin:0 0 .5em}
+.sub{color:var(--mute);margin:0 0 20px}
+section{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:18px;margin:16px 0}
+code,.f{font-family:Consolas,"Courier New",monospace}
+.f{background:var(--gl);border-left:4px solid var(--g);padding:10px 12px;border-radius:4px;overflow-x:auto;white-space:nowrap;margin:8px 0}
+.tw{overflow-x:auto;margin:8px 0}
+table{border-collapse:collapse;min-width:100%}
+th,td{border:1px solid var(--line);padding:6px 12px;text-align:left;white-space:nowrap}
+th{background:var(--gl);font-weight:600}
+td.n{text-align:right}
+tr.tot td,td.tot{font-weight:700;background:var(--gl)}
+td.pc{cursor:pointer}td.pc:hover{outline:2px solid var(--g);outline-offset:-2px}
+td.pc.sel{background:var(--g);color:#fff}
+tr.hl td{background:var(--hl)}
+.ctl{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:14px 0}
+label{display:block;font-size:.85rem;color:var(--mute);margin-bottom:3px}
+input,select,button{font:inherit;color:var(--ink)}
+input,select{width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--card)}
+button{background:var(--g);color:#fff;border:0;border-radius:6px;padding:9px 16px;cursor:pointer;font-weight:600}
+@media(prefers-color-scheme:dark){button{color:#0b1a11}}
+button:focus-visible,input:focus-visible,select:focus-visible,td.pc:focus-visible,summary:focus-visible{outline:3px solid var(--g);outline-offset:2px}
+.res{margin-top:10px;padding:10px 12px;border-radius:6px;background:var(--gl)}
+.res.bad{background:var(--errl);color:var(--err)}
+.opt{display:block;width:100%;text-align:left;background:var(--card);color:var(--ink);border:1px solid var(--line);margin:8px 0}
+.opt:hover{border-color:var(--g)}
+.opt.ok{background:var(--gl);border-color:var(--g)}.opt.no{background:var(--errl);border-color:var(--err)}
+.fb{margin-top:12px;padding:10px 12px;border-radius:6px}
+.fb.ok{background:var(--gl)}.fb.no{background:var(--errl)}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin-bottom:14px}
+.bar i{display:block;height:100%;background:var(--g);transition:width .3s}
+.tp{border-left:4px solid var(--g);padding-left:12px;color:var(--mute)}
+.note{color:var(--mute);font-size:.9rem}
+.areas{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:10px 0}
+.areas div{border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:var(--gl)}
+.areas b{display:block}
+.lay{display:grid;grid-template-columns:minmax(0,1fr) 210px;gap:16px;align-items:start}
+.mn{min-width:0;order:1}.side{order:2;position:sticky;top:12px;border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--gl)}
+.side .ctl2>div{margin-bottom:12px}
+@media(max-width:720px){.lay{grid-template-columns:1fr}.side{order:0;position:static}}
+summary{cursor:pointer;font-weight:600;margin:8px 0}
+</style>
+</head>
+<body>
+<main>
+<h1>Belajar Pivot Table 1D dan 2D</h1>
+<p class="sub">Pemilik Toko Nusantara Mart punya 10 catatan transaksi dan ingin ringkasannya: total per kategori, atau total per kategori dan per kasir. Pivot Table membuatnya tanpa menulis rumus satu per satu.</p>
+<p class="tp"><b>Tujuan pembelajaran:</b> peserta didik dapat menyusun dan membaca Pivot Table satu dimensi (1D) dan dua dimensi (2D).</p>
+
+<section>
+<h2>1. Kenali Pivot Table</h2>
+<p><b>Pivot Table</b> adalah ringkasan otomatis dari sebuah tabel data. Kamu menyusunnya dengan memilih field dan menaruhnya di empat area:</p>
+<div class="areas">
+<div><b>Rows (Baris)</b>pengelompokan yang berjajar ke bawah</div>
+<div><b>Columns (Kolom)</b>pengelompokan yang berjajar ke samping</div>
+<div><b>Values (Nilai)</b>angka yang dihitung: Sum, Count, atau Average</div>
+<div><b>Filters</b>menyaring data sebelum dihitung</div>
+</div>
+<p><b>Pivot 1D</b> hanya memakai satu pengelompokan (Rows saja). Contoh: total penjualan tiap kategori.<br>
+<b>Pivot 2D</b> memakai dua pengelompokan (Rows dan Columns). Contoh: total penjualan tiap kategori, dipecah per kasir.</p>
+<p>Setiap sel pivot sebenarnya setara satu rumus SUMIFS, COUNTIFS, atau AVERAGEIFS. Pivot 1D memakai satu syarat, pivot 2D memakai dua syarat, dan Excel menghitung semuanya sekaligus.</p>
+<p class="note">Cara membuat di Excel: klik di dalam tabel data, buka tab Insert, pilih PivotTable, lalu seret field ke area Rows, Columns, dan Values. Jika data sumber berubah, klik kanan pivot lalu pilih Refresh.</p>
+</section>
+
+<section>
+<h2>2. Coba sendiri</h2>
+<p>Susun pivot dengan memilih field. Klik sel pivot untuk melihat baris data yang dihitung dan rumus yang setara.</p>
+<div class="lay">
+<div class="mn">
+<div class="res" id="info" aria-live="polite"></div>
+<div class="tw" id="pv"></div>
+<div class="res" id="eqm">Klik sel pivot untuk melihat rumus yang setara.</div>
+<div class="f" id="eqf" style="display:none"></div>
+<details open><summary>Data sumber (10 transaksi)</summary><div class="tw" id="src"></div></details>
+</div>
+<aside class="side"><b>Pengaturan Pivot</b><p class="note" style="margin:2px 0 10px">Seperti panel PivotTable Fields di Excel.</p>
+<div class="ctl2">
+<div><label for="rf">Rows (Baris)</label><select id="rf"><option>Kategori</option><option>Kasir</option><option>Barang</option></select></div>
+<div><label for="cf">Columns (Kolom)</label><select id="cf"><option value="">(kosong)</option><option>Kategori</option><option>Kasir</option></select></div>
+<div><label for="vf">Values: field</label><select id="vf"><option>Total</option><option>Jumlah</option></select></div>
+<div><label for="fn">Values: fungsi</label><select id="fn"><option value="Sum">Sum (jumlah)</option><option value="Count">Count (banyak baris)</option><option value="Average">Average (rata-rata)</option></select></div>
+</div>
+</aside>
+</div>
+<p class="note">Coba: Rows = Kategori saja (1D), lalu isi Columns = Kasir (2D). Ganti fungsi ke Count dan Average, dan perhatikan Grand Total.</p>
+</section>
+
+<section>
+<h2>3. Latihan</h2>
+<div class="bar"><i id="bar" style="width:0"></i></div>
+<div id="quiz"></div>
+</section>
+</main>
+<script>
+const D=[["Beras 5kg","Sembako","Sari",2,136000],["Minyak Goreng 2L","Sembako","Budi",3,108000],["Gula 1kg","Sembako","Sari",5,87500],["Kopi Sachet","Minuman","Budi",20,50000],["Teh Botol","Minuman","Sari",6,24000],["Susu UHT","Minuman","Budi",4,60000],["Sabun Mandi","Kebersihan","Sari",3,15000],["Deterjen","Kebersihan","Budi",2,30000],["Telur 1kg","Sembako","Budi",2,56000],["Mi Instan","Sembako","Sari",10,35000]];
+const H=["Barang","Kategori","Kasir","Jumlah","Total"],F={Barang:0,Kategori:1,Kasir:2,Jumlah:3,Total:4},L="ABCDE";
+const $=id=>document.getElementById(id);
+const uniq=f=>[...new Set(D.map(r=>r[F[f]]))].sort((a,b)=>String(a).localeCompare(String(b),"id"));
+const rp=n=>"Rp "+Math.round(n).toLocaleString("id-ID");
+const rng=f=>`${L[F[f]]}2:${L[F[f]]}11`;
+function pick(rf,cf,ri,ci,R,C){return D.map((r,i)=>i).filter(i=>(ri<0||D[i][F[rf]]===R[ri])&&(!cf||ci<0||D[i][F[cf]]===C[ci]))}
+function agg(idx,vf,fn){
+  if(!idx.length)return null;
+  if(fn==="Count")return idx.length;
+  const s=idx.reduce((a,i)=>a+D[i][F[vf]],0);
+  return fn==="Sum"?s:s/idx.length;
+}
+function fmt(v,vf,fn){
+  if(v===null)return "-";
+  if(fn==="Count"||vf==="Jumlah")return v.toLocaleString("id-ID",{maximumFractionDigits:1});
+  return rp(v);
+}
+function pivot(rf,cf,vf,fn,sel,live){
+  const R=uniq(rf),C=cf?uniq(cf):[],cls=(ri,ci)=>"n pc"+(sel&&sel.r===ri&&sel.c===ci?" sel":"");
+  const td=(ri,ci,tot)=>`<td class="${cls(ri,ci)}${tot?" tot":""}"${live?` tabindex="0" data-r="${ri}" data-c="${ci}"`:""}>${fmt(agg(pick(rf,cf,ri,ci,R,C),vf,fn),vf,fn)}</td>`;
+  const lab=`${fn} of ${fn==="Count"?rf:vf}`;
+  let h="<table><tr>";
+  if(!cf){
+    h+=`<th>${rf}</th><th>${lab}</th></tr>`;
+    R.forEach((x,ri)=>{h+=`<tr><td>${x}</td>${td(ri,-1)}</tr>`});
+    h+=`<tr class="tot"><td>Grand Total</td>${td(-1,-1)}</tr></table>`;
+  }else{
+    h+=`<th>${lab}</th><th colspan="${C.length+1}">${cf}</th></tr><tr><th>${rf}</th>${C.map(x=>`<th>${x}</th>`).join("")}<th>Grand Total</th></tr>`;
+    R.forEach((x,ri)=>{h+=`<tr><td>${x}</td>${C.map((_,ci)=>td(ri,ci)).join("")}${td(ri,-1,1)}</tr>`});
+    h+=`<tr class="tot"><td>Grand Total</td>${C.map((_,ci)=>td(-1,ci)).join("")}${td(-1,-1)}</tr></table>`;
+  }
+  return h;
+}
+let sel=null;
+function equiv(rf,cf,vf,fn,R,C){
+  const cr=[];
+  if(sel.r>=0)cr.push(`${rng(rf)}, "${R[sel.r]}"`);
+  if(cf&&sel.c>=0)cr.push(`${rng(cf)}, "${C[sel.c]}"`);
+  if(!cr.length)return fn==="Sum"?`=SUM(${rng(vf)})`:fn==="Count"?`=COUNTA(A2:A11)`:`=AVERAGE(${rng(vf)})`;
+  return fn==="Sum"?`=SUMIFS(${rng(vf)}, ${cr.join(", ")})`:fn==="Count"?`=COUNTIFS(${cr.join(", ")})`:`=AVERAGEIFS(${rng(vf)}, ${cr.join(", ")})`;
+}
+function draw(){
+  const rf=$("rf").value,cf=$("cf").value,vf=$("vf").value,fn=$("fn").value,info=$("info");
+  if(cf===rf){
+    info.className="res bad";info.textContent="Rows dan Columns tidak boleh memakai field yang sama. Pilih field lain.";
+    $("pv").innerHTML="";$("src").innerHTML="";$("eqf").style.display="none";return;
+  }
+  const R=uniq(rf),C=cf?uniq(cf):[];
+  info.className="res";
+  info.innerHTML=`<b>Pivot ${cf?"2D":"1D"}</b> (${cf?"Rows dan Columns":"hanya Rows"}). Rows: ${rf}. Columns: ${cf||"-"}. Values: ${fn} of ${fn==="Count"?rf:vf}.`+(fn==="Count"?" Count hanya menghitung banyak baris data, jadi field Values tidak memengaruhi hasil.":"");
+  $("pv").innerHTML=pivot(rf,cf,vf,fn,sel,true);
+  let idx=[];
+  if(sel){
+    idx=pick(rf,cf,sel.r,sel.c,R,C);
+    const parts=[];if(sel.r>=0)parts.push(`${rf}: ${R[sel.r]}`);if(cf&&sel.c>=0)parts.push(`${cf}: ${C[sel.c]}`);
+    $("eqm").textContent=`Sel ${parts.length?"("+parts.join(", ")+")":"Grand Total"} menghitung ${idx.length} baris data (ditandai kuning di data sumber). Rumus yang setara:`;
+    $("eqf").style.display="";$("eqf").textContent=equiv(rf,cf,vf,fn,R,C);
+  }else{$("eqm").textContent="Klik sel pivot untuk melihat baris data dan rumus yang setara.";$("eqf").style.display="none"}
+  let t="<table><tr><th></th>"+L.split("").map(x=>`<th>${x}</th>`).join("")+"</tr><tr><td class='tot'>1</td>"+H.map(x=>`<td><b>${x}</b></td>`).join("")+"</tr>";
+  D.forEach((r,i)=>{t+=`<tr class="${idx.includes(i)?"hl":""}"><td class="tot">${i+2}</td>`+r.map((x,j)=>`<td>${j===4?rp(x):x}</td>`).join("")+"</tr>"});
+  $("src").innerHTML=t+"</table>";
+}
+["rf","cf","vf","fn"].forEach(i=>$(i).addEventListener("input",()=>{sel=null;draw()}));
+function pickCell(e){
+  const c=e.target.closest&&e.target.closest("td.pc");if(!c)return;
+  sel={r:+c.dataset.r,c:+c.dataset.c};draw();
+}
+$("pv").addEventListener("click",pickCell);
+$("pv").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();pickCell(e)}});
+draw();
+
+const cap=t=>`<p class="note"><b>${t}</b></p>`;
+const Q=[
+{q:"Apa fungsi utama Pivot Table?",o:["Menggambar grafik otomatis","Meringkas tabel data dengan cepat tanpa menulis banyak rumus","Menghapus data yang dobel","Mengunci sel agar tidak bisa diubah"],a:1,e:"Pivot Table meringkas data dengan mengelompokkan dan menghitungnya (jumlah, banyak, rata-rata) hanya dengan menyeret field."},
+{q:"Sebuah pivot hanya memakai Kategori di Rows dan Sum of Total di Values. Pivot ini termasuk jenis apa?",o:["1D, karena hanya ada satu pengelompokan","2D, karena ada dua field","3D, karena ada nilai","Bukan pivot"],a:0,e:"Dimensi ditentukan oleh banyaknya pengelompokan. Rows saja berarti 1D. Jika Columns diisi juga, pivot menjadi 2D."},
+{c:()=>cap("Sum of Total per Kategori")+`<div class="tw">${pivot("Kategori","","Total","Sum",null,false)}</div>`,q:"Kategori mana yang paling besar, dan kira-kira berapa persen dari Grand Total?",o:["Sembako, sekitar 70%","Sembako, sekitar 50%","Minuman, sekitar 70%","Minuman, sekitar 22%"],a:0,e:"Sembako Rp 422.500 dari Grand Total Rp 601.500, yaitu sekitar 70%."},
+{c:()=>cap("Count per Kategori (Rows) dan Kasir (Columns)")+`<div class="tw">${pivot("Kategori","Kasir","Total","Count",null,false)}</div>`,q:"Berapa transaksi yang ditangani Budi pada kategori Minuman?",o:["1","2","3","5"],a:1,e:"Cari baris Minuman dan kolom Budi. Sel itu bernilai 2, yaitu Kopi Sachet dan Susu UHT."},
+{q:"Pada pivot Average of Total, bagaimana Grand Total dihitung?",o:["Rata-rata dari semua baris data","Rata-rata dari angka-angka rata-rata yang tampil","Jumlah semua rata-rata","Nilai terbesar di pivot"],a:0,e:"Grand Total dihitung dari seluruh baris data sumber, bukan dari rata-rata yang tampil. Karena itu hasilnya bisa berbeda dari rata-rata dari rata-rata."},
+{q:"Data sumber diubah, tetapi angka di pivot tidak berubah. Apa yang harus dilakukan?",o:["Membuat pivot baru dari awal","Klik kanan pivot lalu pilih Refresh","Menghapus semua field","Menyimpan ulang file"],a:1,e:"Pivot tidak otomatis mengikuti data sumber. Gunakan Refresh (klik kanan pivot, atau Alt+F5) untuk memperbarui."},
+{q:"Tugas: tampilkan total penjualan tiap kasir, dipecah per kategori. Susunan field yang benar?",o:["Rows: Kasir. Columns: Kategori. Values: Sum of Total","Rows: Total. Columns: Kasir. Values: Kategori","Rows: Kasir. Values: Count of Kategori saja","Filters: Kasir. Values: Kategori"],a:0,e:"Dua pengelompokan (kasir dan kategori) berarti pivot 2D: satu di Rows, satu di Columns, dan angka yang dijumlahkan (Total) ada di Values."}
+];
+let i=0,s=0;
+function show(){
+  const z=$("quiz");$("bar").style.width=(i/Q.length*100)+"%";
+  if(i>=Q.length){
+    z.innerHTML=`<h3>Skor: ${s} dari ${Q.length}</h3><p>${s===Q.length?"Sempurna. Kamu sudah bisa menyusun dan membaca Pivot Table 1D dan 2D.":s>=5?"Bagus. Ulangi bagian yang masih keliru, lalu coba lagi.":"Buka bagian 2, coba beberapa susunan field dan klik sel pivot, lalu ulangi latihan."}</p><button id="re">Ulangi latihan</button>`;
+    $("re").onclick=()=>{i=0;s=0;show()};return;
+  }
+  const q=Q[i];
+  let h=(q.c?q.c():"")+`<p><b>Soal ${i+1} dari ${Q.length}.</b> ${q.q}</p>`;
+  h+=q.o.map((x,k)=>`<button class="opt" data-k="${k}">${x}</button>`).join("")+`<div id="fb"></div>`;
+  z.innerHTML=h;
+  z.querySelectorAll(".opt").forEach(b=>b.onclick=()=>done(+b.dataset.k===q.a,b));
+}
+function done(ok,btn){
+  const q=Q[i];if(ok)s++;
+  document.querySelectorAll("#quiz .opt").forEach((b,k)=>{b.disabled=true;if(k===q.a)b.classList.add("ok");else if(b===btn)b.classList.add("no")});
+  $("fb").innerHTML=`<div class="fb ${ok?"ok":"no"}"><b>${ok?"Benar.":"Belum tepat."}</b> ${q.e}</div><p><button id="nx">${i===Q.length-1?"Lihat skor":"Soal berikutnya"}</button></p>`;
+  $("nx").focus();$("nx").onclick=()=>{i++;show()};
+}
+show();
+</script>
+</body>
+</html>
